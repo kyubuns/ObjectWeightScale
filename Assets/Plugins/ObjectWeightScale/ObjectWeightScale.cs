@@ -80,33 +80,6 @@ namespace ObjectWeightScale
 
             return $"{size:0.00} {units[unit]}";
         }
-
-        [MenuItem("GameObject/WeightScale VRC")]
-        public static void RunDev()
-        {
-            var prefabTempPath = "Assets/WeightScaleTemp.prefab";
-            var target = Selection.gameObjects[0];
-            PrefabUtility.SaveAsPrefabAsset(target, prefabTempPath);
-
-            var assetBundleBuild = new AssetBundleBuild
-            {
-                assetNames = new[]{ prefabTempPath },
-                assetBundleName = "WeightScaleTemp.unity3d"
-            };
-
-            File.Delete(prefabTempPath);
-            File.Delete(prefabTempPath + ".meta");
-
-            BuildPipeline.BuildAssetBundles(Application.temporaryCachePath, new[]
-            {
-                assetBundleBuild
-            }, BuildAssetBundleOptions.None, EditorUserBuildSettings.activeBuildTarget);
-
-            var assetBundle = new FileInfo($"{Application.temporaryCachePath}/WeightScaleTemp.unity3d");
-            Debug.Log($"{target.name} upload size is {ReadableFileSize(assetBundle.Length)}");
-
-            AssetDatabase.Refresh();
-        }
     }
 
     public class SizeData

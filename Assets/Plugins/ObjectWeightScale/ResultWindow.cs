@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -13,6 +14,7 @@ namespace ObjectWeightScale
         private string _total;
         private Tuple<string, string, Object>[] _size;
         private Vector2 _scrollPosition = Vector2.zero;
+        private string _assetBundleSize = null;
         private static SearchableEditorWindow _hierarchy;
 
         public void Refresh(GameObject target, SizeData[] sizeList)
@@ -35,7 +37,23 @@ namespace ObjectWeightScale
         {
             if (_size == null) return;
 
-            GUILayout.Label($"{_target.name} Total: {_total}");
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label($"{_target.name}");
+                GUILayout.Label($"Total Size: {_total}");
+                GUILayout.FlexibleSpace();
+                if (_assetBundleSize == null)
+                {
+                    if (GUILayout.Button("Calc AssetBundle Size", GUILayout.Width(180)))
+                    {
+                        _assetBundleSize = CalcAssetBundleSize(_target);
+                    }
+                }
+                else
+                {
+                    GUILayout.Label($"AssetBundle Size: {_assetBundleSize}");
+                }
+            }
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
@@ -60,7 +78,7 @@ namespace ObjectWeightScale
             EditorGUILayout.EndScrollView();
         }
 
-        public static void SetSearchFilter(string filter)
+        private static void SetSearchFilter(string filter)
         {
             var windows = (SearchableEditorWindow[]) Resources.FindObjectsOfTypeAll(typeof(SearchableEditorWindow));
 
@@ -77,6 +95,32 @@ namespace ObjectWeightScale
             var parameters = new object[] { filter, 0, false, true };
 
             setSearchType?.Invoke(_hierarchy, parameters);
+        }
+
+        public static string CalcAssetBundleSize(GameObject target)
+        {
+            var prefabTempPath = "Assets/WeightScaleTemp.prefab";
+            PrefabUtility.SaveAsPrefabAsset(target, prefabTempPath);
+
+            var assetBundleBuild = new AssetBundleBuild
+            {
+                assetNames = new[]{ prefabTempPath },
+                assetBundleName = "WeightScaleTemp.unity3d"
+            };
+
+            File.Delete(prefabTempPath);
+            File.Delete(prefabTempPath + ".meta");
+
+            BuildPipeline.BuildAssetBundles(Application.temporaryCachePath, new[]
+            {
+                assetBundleBuild
+            }, BuildAssetBundleOptions.None, EditorUserBuildSettings.activeBuildTarget);
+
+            var assetBundle = new FileInfo($"{Application.temporaryCachePath}/WeightScaleTemp.unity3d");
+
+            AssetDatabase.Refresh();
+
+            return ObjectWeightScale.ReadableFileSize(assetBundle.Length);
         }
     }
 }
