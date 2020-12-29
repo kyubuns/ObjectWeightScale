@@ -69,7 +69,7 @@ namespace ObjectWeightScale
 
                     if (GUILayout.Button("References", GUILayout.Width(80)))
                     {
-                        SetSearchFilter($"ref:{size.Item1}");
+                        SetSearchFilter($"ref:\"{size.Item1}\"");
                     }
 
                     GUILayout.Label($"{size.Item2} {size.Item1}");
