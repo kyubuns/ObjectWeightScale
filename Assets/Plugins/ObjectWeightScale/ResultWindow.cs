@@ -31,6 +31,7 @@ namespace ObjectWeightScale
                     x.Source
                 );
             }).ToArray();
+            _assetBundleSize = null;
         }
 
         public void OnGUI()
