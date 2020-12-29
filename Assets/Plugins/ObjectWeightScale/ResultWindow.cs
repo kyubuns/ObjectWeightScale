@@ -98,9 +98,13 @@ namespace ObjectWeightScale
             setSearchType?.Invoke(_hierarchy, parameters);
         }
 
-        public static string CalcAssetBundleSize(GameObject target)
+        private static string CalcAssetBundleSize(GameObject target)
         {
             var prefabTempPath = "Assets/WeightScaleTemp.prefab";
+
+            File.Delete(prefabTempPath);
+            File.Delete(prefabTempPath + ".meta");
+
             PrefabUtility.SaveAsPrefabAsset(target, prefabTempPath);
 
             var assetBundleBuild = new AssetBundleBuild

@@ -10,7 +10,9 @@ namespace ObjectWeightScale
 {
     public static class ObjectWeightScale
     {
-        [MenuItem("GameObject/WeightScale")]
+        private const string MenuItemName = "GameObject/WeightScale";
+        private const int MenuItemPriority = 48;
+        [MenuItem(MenuItemName, false, MenuItemPriority)]
         public static void Run()
         {
             AssetDatabase.Refresh();
@@ -50,8 +52,16 @@ namespace ObjectWeightScale
 
                 Debug.Log($"WeightScale {target}\nTotal: {total}\n{text}");
 
-                var window = EditorWindow.GetWindow<ResultWindow>("WeightScale");
-                window.Refresh(target, sizeData);
+                if (Selection.gameObjects.Length == 1)
+                {
+                    var window = EditorWindow.GetWindow<ResultWindow>("WeightScale");
+                    window.Refresh(target, sizeData);
+                }
+            }
+
+            if (Selection.gameObjects.Length == 0)
+            {
+                Debug.LogWarning("Please select a game object.");
             }
         }
 
